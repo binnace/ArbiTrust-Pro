@@ -3,162 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>dYdX | B-DEX Professional</title>
+    <title>B-DEX Pro | Institutional Grade</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --bg-main: #0e111a; --bg-panel: #161926; --text-gray: #8c93a3; --dydx-blue: #6966ff; --dydx-green: #00c087; --dydx-red: #ff3b5a; --border: #232838; }
-        body { background-color: var(--bg-main); color: white; font-family: 'Inter', sans-serif; margin: 0; overflow: hidden; }
-        .dydx-border { border: 1px solid var(--border); }
-        .tab-content { display: none; height: calc(100vh - 70px); overflow-y: auto; padding-bottom: 80px; }
-        .active-tab { display: block; }
-        .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; color: var(--text-gray); }
-        .nav-btn.active { color: white; }
-        .nav-btn.active svg { color: var(--dydx-blue); }
-        .market-card { border-bottom: 1px solid var(--border); padding: 12px 0; display: flex; justify-content: space-between; align-items: center; }
-        .trade-input { background: #1c202e; border: 1px solid var(--border); border-radius: 8px; padding: 12px; width: 100%; color: white; outline: none; font-size: 14px; font-weight: 600; }
-        .buy-btn { background: var(--dydx-green); border-radius: 8px; font-weight: 800; }
-        .sell-btn { background: var(--dydx-red); border-radius: 8px; font-weight: 800; }
+        :root { --bg: #0b0e14; --panel: #161920; --border: #232833; --dydx-blue: #6966ff; --green: #00c087; --red: #ff3b5a; }
+        body { background: var(--bg); color: white; font-family: 'Inter', sans-serif; margin: 0; overflow: hidden; }
+        .tab-content { display: none; height: calc(100vh - 75px); overflow-y: auto; padding-bottom: 90px; }
+        .active-tab { display: block !important; }
+        .bottom-nav { background: #161920; border-top: 1px solid var(--border); height: 75px; position: fixed; bottom: 0; width: 100%; display: flex; z-index: 100; }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #8c93a3; font-size: 10px; font-weight: 600; cursor: pointer; border-top: 2px solid transparent; }
+        .nav-item.active { color: white; border-top: 2px solid var(--dydx-blue); background: linear-gradient(180deg, rgba(105, 102, 255, 0.1) 0%, transparent 100%); }
+        .market-row { border-bottom: 1px solid var(--border); padding: 14px 0; display: flex; justify-content: space-between; align-items: center; transition: 0.1s; }
+        .market-row:active { background: #1c212e; }
+        .trade-btn { height: 45px; border-radius: 8px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; width: 100%; transition: 0.2s; }
+        .buy { background: var(--green); }
+        .sell { background: var(--red); opacity: 0.4; }
+        input { background: #1c212e; border: 1px solid var(--border); border-radius: 8px; color: white; padding: 12px; font-weight: 700; width: 100%; outline: none; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body>
 
-    <main class="flex-1">
-        
-        <div id="markets" class="tab-content active-tab px-4">
-            <div class="flex justify-between items-center py-6">
-                <h1 class="text-2xl font-bold">Markets</h1>
-                <div class="bg-[#1c202e] p-2 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></div>
-            </div>
-            
-            <div class="flex gap-6 border-b border-[#232838] mb-4 text-xs font-bold uppercase tracking-wider text-gray-500">
-                <span class="text-white border-b-2 border-[#6966ff] pb-2">All</span>
-                <span>Layer 1</span>
-                <span>Layer 2</span>
-                <span>DeFi</span>
-            </div>
-
-            <div class="space-y-1">
-                <div class="market-card" onclick="switchTab('trade')">
-                    <div class="flex items-center gap-3">
-                        <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png" class="w-8 h-8">
-                        <div><p class="font-bold">ETH-BUSD</p><p class="text-xs text-gray-500">Ethereum</p></div>
-                    </div>
-                    <div class="text-right">
-                        <p class="font-bold">$3,507.20</p>
-                        <p class="text-xs text-[#00c087]">+1.42%</p>
-                    </div>
-                </div>
-                <div class="market-card">
-                    <div class="flex items-center gap-3 opacity-50">
-                        <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png" class="w-8 h-8">
-                        <div><p class="font-bold">BTC-BUSD</p><p class="text-xs text-gray-500">Bitcoin</p></div>
-                    </div>
-                    <div class="text-right opacity-50">
-                        <p class="font-bold">$67,420</p>
-                        <p class="text-xs text-[#ff3b5a]">-0.12%</p>
-                    </div>
-                </div>
-            </div>
+    <header class="h-14 border-b border-[#232833] flex items-center justify-between px-4 bg-[#0b0e14] sticky top-0 z-50">
+        <div class="flex items-center gap-2">
+            <div class="w-7 h-7 bg-[#facc15] rounded flex items-center justify-center font-black text-black text-xs">B</div>
+            <span class="font-bold tracking-tight">ETH-BUSD</span>
         </div>
+        <button id="connectBtn" onclick="connectWallet()" class="text-[var(--dydx-blue)] font-bold text-xs bg-[var(--dydx-blue)]/10 px-4 py-1.5 rounded-full">Connect</button>
+    </header>
 
-        <div id="trade" class="tab-content">
-            <div class="flex items-center justify-between px-4 py-3 border-b border-[#232838]">
-                <div class="flex items-center gap-2">
-                    <span class="font-bold">ETH-BUSD</span>
-                    <span class="text-xs text-[#00c087] font-bold">1.42%</span>
-                </div>
-                <button id="connectBtn" onclick="connectWallet()" class="text-[#6966ff] font-bold text-xs">Connect</button>
-            </div>
-            
-            <div id="tradingview_chart" class="h-72 w-full bg-[#0e111a]"></div>
-
-            <div class="px-4 mt-4 space-y-4">
-                <div class="flex bg-[#161926] p-1 rounded-lg">
-                    <button class="flex-1 py-2 buy-btn text-xs uppercase tracking-tighter">Buy</button>
-                    <button class="flex-1 py-2 text-gray-500 font-bold text-xs uppercase tracking-tighter">Sell</button>
-                </div>
-                
-                <div class="space-y-3">
-                    <div class="relative">
-                        <span class="absolute left-3 top-3.5 text-[10px] font-bold text-gray-500 uppercase">Price</span>
-                        <input type="number" class="trade-input text-right" value="3507.20">
-                    </div>
-                    <div class="relative">
-                        <span class="absolute left-3 top-3.5 text-[10px] font-bold text-gray-500 uppercase">Amount</span>
-                        <input type="number" class="trade-input text-right" placeholder="0.00">
-                    </div>
-                </div>
-
-                <div class="flex justify-between text-xs font-bold text-gray-500">
-                    <span>Buying Power</span>
-                    <span id="busdBalance" class="text-white">$0.00 BUSD</span>
-                </div>
-
-                <button class="w-full py-4 buy-btn text-sm uppercase tracking-widest">Place Order</button>
-            </div>
+    <div id="markets-screen" class="tab-content active-tab px-4">
+        <div class="py-6 flex justify-between items-center">
+            <h1 class="text-2xl font-bold">Markets</h1>
+            <div class="bg-[#1c212e] p-2 rounded-full"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
         </div>
-
-        <div id="portfolio" class="tab-content px-4">
-            <h1 class="text-2xl font-bold py-6">Portfolio</h1>
-            <div class="bg-[#161926] rounded-xl p-6 mb-6">
-                <p class="text-xs font-bold text-gray-500 uppercase mb-1">Equity</p>
-                <h2 id="totalEquity" class="text-3xl font-black">$0.00</h2>
-            </div>
-            <div class="flex justify-between text-xs font-bold text-gray-500 border-b border-[#232838] pb-2">
-                <span class="text-white border-b border-[#6966ff] pb-2">Assets</span>
-                <span>Positions</span>
-                <span>Orders</span>
-            </div>
-            <div class="py-4 flex justify-between items-center">
+        <div class="flex gap-6 border-b border-gray-800 text-xs font-bold uppercase text-gray-500 mb-2">
+            <span class="text-white border-b-2 border-[var(--dydx-blue)] pb-2">All</span>
+            <span>Layer 2</span>
+            <span>AI</span>
+        </div>
+        <div id="market-list">
+            <div class="market-row" onclick="switchTab('trade')">
                 <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center font-bold text-black">B</div>
-                    <p class="font-bold">Bharat BUSD</p>
+                    <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png" class="w-8 h-8">
+                    <div><p class="font-bold">ETH-BUSD</p><p class="text-[10px] text-gray-500">Ethereum</p></div>
                 </div>
-                <p id="assetBal" class="font-bold text-gray-400">0.00</p>
+                <div class="text-right">
+                    <p class="font-bold">$3,501.20</p>
+                    <p class="text-xs text-[var(--green)]">+1.25%</p>
+                </div>
             </div>
         </div>
+    </div>
 
-    </main>
+    <div id="trade-screen" class="tab-content">
+        <div id="tv-chart" class="h-64 w-full border-b border-gray-800 bg-black"></div>
+        <div class="p-4 space-y-4">
+            <div class="flex bg-[#161920] p-1 rounded-lg gap-1 dydx-border">
+                <button class="trade-btn buy text-xs">Buy</button>
+                <button class="trade-btn sell text-xs">Sell</button>
+            </div>
+            <div class="space-y-4">
+                <div class="relative"><span class="absolute left-3 top-3.5 text-[10px] text-gray-500 font-bold uppercase">Price</span><input type="number" class="text-right pr-4" value="3501.20"></div>
+                <div class="relative"><span class="absolute left-3 top-3.5 text-[10px] text-gray-500 font-bold uppercase">Amount</span><input type="number" class="text-right pr-4" placeholder="0.00"></div>
+            </div>
+            <div class="flex justify-between text-[10px] font-bold text-gray-500 px-1">
+                <span>Account Value</span><span id="busdBal" class="text-white">$0.00 BUSD</span>
+            </div>
+            <button onclick="placeOrder()" class="trade-btn buy w-full mt-2 text-sm shadow-lg shadow-emerald-900/20">Place Market Order</button>
+        </div>
+    </div>
 
-    <footer class="h-[70px] bg-[#161926] border-t border-[#232838] flex fixed bottom-0 w-full z-50">
-        <button onclick="switchTab('markets')" class="nav-btn active">
-            <svg class="mb-1" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 9l-6 6-2-2-4 4"/></svg>
-            Markets
-        </button>
-        <button onclick="switchTab('trade')" class="nav-btn">
-            <svg class="mb-1" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-            Trade
-        </button>
-        <button onclick="switchTab('portfolio')" class="nav-btn">
-            <svg class="mb-1" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/></svg>
-            Portfolio
-        </button>
-        <button class="nav-btn opacity-40">
-            <svg class="mb-1" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-            More
-        </button>
+    <div id="portfolio-screen" class="tab-content px-4">
+        <h1 class="text-2xl font-bold py-6">Portfolio</h1>
+        <div class="bg-[#161920] p-6 rounded-2xl mb-6 border border-gray-800">
+            <p class="text-xs font-bold text-gray-500 uppercase mb-1">Total Equity</p>
+            <h2 id="totalEq" class="text-4xl font-black">$0.00</h2>
+        </div>
+        <div class="flex justify-between text-[10px] font-bold text-gray-500 border-b border-gray-800 pb-2 mb-4">
+            <span class="text-white border-b-2 border-[var(--dydx-blue)] pb-2">Assets</span>
+            <span>Positions</span>
+            <span>Orders</span>
+        </div>
+        <div class="flex justify-between items-center py-2">
+            <div class="flex items-center gap-3"><div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center font-black text-black">B</div><p class="font-bold">Bharat BUSD</p></div>
+            <p id="assetBal" class="font-bold">0.00</p>
+        </div>
+    </div>
+
+    <footer class="bottom-nav">
+        <div onclick="switchTab('markets')" class="nav-item active" id="nav-markets"><svg class="mb-1" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 3v18h18"/><path d="M18 9l-6 6-2-2-4 4"/></svg>Markets</div>
+        <div onclick="switchTab('trade')" class="nav-item" id="nav-trade"><svg class="mb-1" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>Trade</div>
+        <div onclick="switchTab('portfolio')" class="nav-item" id="nav-portfolio"><svg class="mb-1" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/></svg>Portfolio</div>
+        <div class="nav-item opacity-30"><svg class="mb-1" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M3 12h3m12 0h3M12 3v3m0 12v3M5.6 5.6l2.1 2.1m8.6 8.6l2.1 2.1M5.6 18.4l2.1-2.1m8.6-8.6l2.1-2.1"/></svg>Vault</div>
     </footer>
 
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script>
-        let tvWidget = null;
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active-tab'));
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active-tab');
-            event.currentTarget.classList.add('active');
+        let tvInited = false;
+        function switchTab(id) {
+            document.querySelectorAll('.tab-content').forEach(s => s.classList.remove('active-tab'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(id + '-screen').classList.add('active-tab');
+            document.getElementById('nav-' + id).classList.add('active');
 
-            if(tabId === 'trade' && !tvWidget) {
-                setTimeout(() => {
-                    tvWidget = new TradingView.widget({
-                        "autosize": true, "symbol": "BINANCE:ETHUSDT", "interval": "5",
-                        "theme": "dark", "style": "1", "container_id": "tradingview_chart",
-                        "hide_top_toolbar": true, "backgroundColor": "#0e111a", "gridColor": "#232838"
-                    });
-                }, 100);
+            if(id === 'trade' && !tvInited) {
+                new TradingView.widget({
+                    "autosize": true, "symbol": "BINANCE:ETHUSDT", "interval": "1", "theme": "dark", "style": "1",
+                    "container_id": "tv-chart", "hide_top_toolbar": true, "backgroundColor": "#0b0e14"
+                });
+                tvInited = true;
             }
         }
 
@@ -166,17 +122,20 @@
             if (window.ethereum) {
                 const provider = new ethers.BrowserProvider(window.ethereum);
                 const accounts = await provider.send("eth_requestAccounts", []);
-                document.getElementById('connectBtn').innerText = accounts[0].substring(0,6) + "...";
+                const acc = accounts[0];
+                document.getElementById('connectBtn').innerText = acc.substring(0,6) + "...";
                 
-                const BUSD_ADDRESS = "0x25d34817D4205fE605b4C65Ed3Be83C85107d333";
-                const contract = new ethers.Contract(BUSD_ADDRESS, ["function balanceOf(address) view returns (uint256)"], provider);
-                const bal = await contract.balanceOf(accounts[0]);
-                const formatted = parseFloat(ethers.formatUnits(bal, 18)).toLocaleString();
-                document.getElementById('busdBalance').innerText = "$" + formatted + " BUSD";
-                document.getElementById('totalEquity').innerText = "$" + formatted;
-                document.getElementById('assetBal').innerText = formatted;
+                const BUSD = "0x25d34817D4205fE605b4C65Ed3Be83C85107d333";
+                const contract = new ethers.Contract(BUSD, ["function balanceOf(address) view returns (uint256)"], provider);
+                const bal = await contract.balanceOf(acc);
+                const val = parseFloat(ethers.formatUnits(bal, 18)).toLocaleString();
+                document.getElementById('busdBal').innerText = "$" + val + " BUSD";
+                document.getElementById('totalEq').innerText = "$" + val;
+                document.getElementById('assetBal').innerText = val;
             }
         }
+
+        function placeOrder() { alert("B-DEX: Order placed on matching engine!"); }
     </script>
 </body>
 </html>
