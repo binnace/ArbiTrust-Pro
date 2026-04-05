@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArbiTrust Pro | Orderbook DEX</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #080a0f; color: #e5e7eb; font-family: 'Inter', sans-serif; overflow: hidden; margin: 0;}
+        .panel { background: #11141d; border: 1px solid #1f2937; }
+        .input-box { background: #1a1e2c; border: 1px solid #374151; border-radius: 4px; padding: 8px; width: 100%; color: white; outline: none; }
+        .buy-btn { background-color: #2ebd85; color: white; font-weight: bold; border-radius: 4px; }
+        .sell-btn { background-color: #f6465d; color: white; font-weight: bold; border-radius: 4px; }
+        .tab-active { border-bottom: 2px solid #3b82f6; color: #3b82f6; }
+        .logo-b { position: relative; width: 2.5rem; height: 2.5rem; background-color: #0c0f16; border-radius: 50%; border: 2px solid #34d399; display: flex; align-items: center; justify-content: center; }
+        .logo-b::after { content: '\20B9'; font-size: 1.5rem; font-weight: 900; color: #34d399; position: absolute;}
+        .logo-b::before { content: 'BUSD'; font-size: 0.5rem; font-weight: 700; color: #34d399; position: absolute; top: -0.25rem; left: 0.25rem;}
+    </style>
+</head>
+<body class="h-screen flex flex-col">
+
+    <nav class="h-16 border-b border-gray-800 flex items-center justify-between px-4 bg-[#11141d]">
+        <div class="flex items-center gap-6">
+            <div class="flex items-center gap-3">
+                <div class="logo-b shadow-lg shadow-emerald-900/20"></div>
+                <h1 class="text-2xl font-extrabold tracking-tighter text-white">Arbi<span class="text-blue-500">Trust</span> <span class="text-xs text-gray-500 font-normal">PRO</span></h1>
+            </div>
+            <div class="flex gap-4 text-xs font-bold tracking-widest uppercase text-gray-400">
+                <span class="tab-active pb-1 cursor-pointer">Trade</span>
+                <span class="hover:text-white cursor-pointer">Orders</span>
+                <span class="hover:text-white cursor-pointer">History</span>
+                <span class="hover:text-white cursor-pointer">Analytics</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <span class="text-xs text-green-500 font-bold uppercase tracking-widest">Live Markets</span>
+            <button id="connectBtn" onclick="connectWallet()" class="bg-blue-600 px-4 py-2 rounded text-[10px] font-bold uppercase tracking-widest text-white shadow-lg transition-transform hover:scale-105">Connect Wallet</button>
+        </div>
+    </nav>
+
+    <main class="flex-1 grid grid-cols-12 gap-1 p-1 overflow-hidden">
+        
+        <div class="col-span-12 md:col-span-9 grid grid-rows-12 gap-1 h-full">
+            
+            <div class="row-span-8 panel relative p-4 flex flex-col">
+                <div class="flex justify-between items-center mb-4">
+                    <div class="flex items-center gap-4">
+                        <span class="text-lg font-bold">ETH / BUSD</span>
+                        <span class="text-2xl font-black text-green-500">3501.00 <span class="text-sm font-normal text-gray-400 italic">+1.25% ↑</span></span>
+                    </div>
+                    <div class="flex gap-1 text-[9px] font-bold uppercase text-gray-600">
+                        <span class="bg-gray-800 px-2 py-1 rounded">1m</span>
+                        <span class="bg-gray-800 px-2 py-1 rounded text-white">5m</span>
+                        <span class="bg-gray-800 px-2 py-1 rounded">15m</span>
+                        <span class="bg-gray-800 px-2 py-1 rounded">1h</span>
+                        <span class="bg-gray-800 px-2 py-1 rounded">1d</span>
+                    </div>
+                </div>
+                <div class="flex-1 border border-dashed border-gray-800 rounded-lg flex items-center justify-center opacity-20">
+                    <p class="text-4xl font-black italic tracking-widest text-gray-800">ADVANCED CHART LOADING...</p>
+                </div>
+            </div>
+
+            <div class="row-span-4 panel p-4 grid grid-cols-12 gap-4">
+                <div class="col-span-12 md:col-span-3 flex flex-col gap-4">
+                    <div class="flex rounded overflow-hidden">
+                        <button class="buy-btn w-1/2 py-2 text-xs">BUY</button>
+                        <button class="bg-gray-800 w-1/2 py-2 text-xs text-gray-400 font-bold">SELL</button>
+                    </div>
+                    <div class="space-y-4">
+                        <input type="number" class="input-box text-sm" placeholder="Price (BUSD): 3500.00">
+                        <input type="number" class="input-box text-sm" placeholder="Amount (ETH): 0.1">
+                        <button class="buy-btn w-full py-3 rounded font-black text-[10px] uppercase tracking-widest shadow-lg">Place Buy Order</button>
+                    </div>
+                </div>
+                <div class="col-span-12 md:col-span-9 border border-gray-800 rounded-lg p-3 flex flex-col">
+                    <div class="flex gap-4 border-b border-gray-800 pb-2 mb-2 text-xs font-bold text-gray-500 uppercase tracking-widest">
+                        <span class="text-white border-b border-blue-500 pb-1">Open Orders</span>
+                        <span>Order History</span>
+                        <span>Trade History</span>
+                    </div>
+                    <div class="flex-1 flex items-center justify-center opacity-30">
+                        <p class="text-[10px] font-bold text-gray-700 uppercase tracking-widest">No Active Orders</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-span-12 md:col-span-3 grid grid-rows-12 gap-1 h-full">
+            <div class="row-span-8 panel p-3 overflow-y-auto">
+                <div class="flex justify-between text-[10px] font-bold text-gray-500 mb-4 px-1 uppercase tracking-widest">
+                    <span>Price (BUSD)</span>
+                    <span>Size (ETH)</span>
+                </div>
+                <div class="space-y-1 mb-4 text-[11px]">
+                    <div class="flex justify-between text-red-400 font-mono"><span>3505.20</span><span>0.125</span></div>
+                    <div class="flex justify-between text-red-400 font-mono"><span>3504.10</span><span>0.840</span></div>
+                    <div class="flex justify-between text-red-400 font-mono opacity-60"><span>3502.50</span><span>0.555</span></div>
+                </div>
+                <div class="py-3 border-y border-gray-800 my-2 flex items-center justify-center gap-2">
+                    <span class="text-xl font-bold text-green-500">3501.00</span>
+                    <span class="text-xs text-gray-500 italic">↑</span>
+                </div>
+                <div class="space-y-1 text-[11px]">
+                    <div class="flex justify-between text-green-400 font-mono opacity-60"><span>3498.50</span><span>2.100</span></div>
+                    <div class="flex justify-between text-green-400 font-mono"><span>3497.00</span><span>0.500</span></div>
+                    <div class="flex justify-between text-green-400 font-mono"><span>3495.80</span><span>1.150</span></div>
+                </div>
+            </div>
+
+            <div class="row-span-4 panel p-4">
+                <h3 class="text-[10px] font-bold text-gray-500 uppercase mb-4 tracking-widest">Portfolio Info</h3>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="text-gray-400">BUSD Avail:</span>
+                        <span id="busdBalance" class="font-bold text-yellow-500">0.00</span>
+                    </div>
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="text-gray-400">ETH Avail:</span>
+                        <span class="font-bold text-white">0.00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="h-6 bg-[#080a0f] border-t border-gray-800 flex items-center px-4 text-[9px] text-gray-600 font-bold uppercase tracking-widest gap-6">
+        <span>Network: Arbitrum One Layer 2</span>
+        <span class="text-green-500 flex items-center gap-1"><div class="w-1.5 h-1.5 rounded-full bg-green-500"></div> Connected</span>
+        <span>Orders: 0 Active</span>
+    </footer>
+
+    <script>
+        const BUSD_ADDRESS = "0x25d34817D4205fE605b4C65Ed3Be83C85107d333";
+        const ABI = ["function balanceOf(address owner) view returns (uint256)"];
+        let provider, signer, account;
+
+        async function connectWallet() {
+            if (window.ethereum) {
+                provider = new ethers.BrowserProvider(window.ethereum);
+                signer = await provider.getSigner();
+                const accounts = await provider.send("eth_requestAccounts", []);
+                account = accounts[0];
+                document.getElementById('connectBtn').innerText = account.substring(0,6) + "...";
+                updateBalance();
+            }
+        }
+
+        async function updateBalance() {
+            if(!account) return;
+            const contract = new ethers.Contract(BUSD_ADDRESS, ABI, provider);
+            const bal = await contract.balanceOf(account);
+            document.getElementById('busdBalance').innerText = parseFloat(ethers.formatUnits(bal, 18)).toLocaleString();
+        }
+    </script>
+</body>
+</html>
